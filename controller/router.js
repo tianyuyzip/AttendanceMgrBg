@@ -18,15 +18,23 @@ var getStuByNo = function (req,res) {
 };
 
 var loadAllAttHistory = function (req,res) {
-    var username = req.params;
-
-    db.query("signCnt",username,1,1,{},function (err,result) {
+    var stuno = req.params.stuno;
+    var stuname = req.params.stuname;
+    db.query("signCnt",{stuno:stuno},1,1,{},function (err,result) {
 
         if(err){
-            res.json({"result":1});
+            console.log(err);
         }else{
             // console.log(result);
-            res.json({"result":result});
+            if(result.length<1){
+                db.insertOne("signCnt",{stuno:stuno,stuname:stuname,normalcnt:0,latecnt:0,absentcnt:0},function (err) {
+                    console.log("插入成功！");
+                })
+                db.query("signCnt",{stuno:stuno},1,1,{},function (err,result) {
+                    res.json({"result":result});
+                })
+            }else
+                res.json({"result":result});
         }
 
     });
@@ -138,6 +146,21 @@ var loadScopedSignedRecord = function (req,res) {
             res.json({"result":result});
         }
     })
+};
+
+var loadCourseSignedInfo = function (req,res) {
+    var courseno = req.params.courseno;
+    var signdate = req.params.signdate;
+    var begintime = req.params.begintime;
+    console.log(courseno+signdate+begintime);
+    db.query("signinfo",{courseno:courseno,begintime:begintime},0,1,{"signtime":1},function (err,result) {
+        if(err)
+            console.log(err);
+        else {
+            console.log(result);
+            res.json({"result": result});
+        }
+    });
 }
 
 exports.getStuByNo = getStuByNo;
@@ -148,4 +171,5 @@ exports.addSigninfo = addSigninfo;
 exports.getSignedinfo = getSignedinfo;
 exports.loadAllSignedRecord = loadAllSignedRecord;
 exports.loadScopedSignedRecord = loadScopedSignedRecord;
+exports.loadCourseSignedInfo = loadCourseSignedInfo;
 
