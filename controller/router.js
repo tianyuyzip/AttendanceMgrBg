@@ -44,7 +44,7 @@ var loadTodayCourses = function (req,res) {
 
     var date = req.params;
 
-    db.query("course",date,5,1,{begintime:1},function (err,result) {
+    db.query("course",date,4,1,{begintime:1},function (err,result) {
 
         if(err){
             res.json({"result":1});
@@ -149,11 +149,11 @@ var loadScopedSignedRecord = function (req,res) {
 };
 
 var loadCourseSignedInfo = function (req,res) {
-    var courseno = req.params.courseno;
-    var signdate = req.params.signdate;
-    var begintime = req.params.begintime;
-    console.log(courseno+signdate+begintime);
-    db.query("signinfo",{courseno:courseno,begintime:begintime},0,1,{"signtime":1},function (err,result) {
+    var courseno = req.query.courseno;
+    var signdate = req.query.signdate;
+    var begintime = req.query.begintime;
+    console.log(courseno);
+    db.query("signinfo",{courseno:courseno,signdate:signdate,begintime:begintime},0,1,{"signtime":1},function (err,result) {
         if(err)
             console.log(err);
         else {
@@ -161,7 +161,17 @@ var loadCourseSignedInfo = function (req,res) {
             res.json({"result": result});
         }
     });
-}
+};
+
+var setNewPassword = function (req,res) {
+  var stuno = req.params.stuno;
+  var password = req.params.password;
+  db.update("student",{stuno:stuno},{$set:{password:password}},function (n) {
+      if(n){
+          res.json({"result":0});
+      }
+  })
+};
 
 exports.getStuByNo = getStuByNo;
 exports.loadAllAttHistory = loadAllAttHistory;
@@ -172,4 +182,5 @@ exports.getSignedinfo = getSignedinfo;
 exports.loadAllSignedRecord = loadAllSignedRecord;
 exports.loadScopedSignedRecord = loadScopedSignedRecord;
 exports.loadCourseSignedInfo = loadCourseSignedInfo;
+exports.setNewPassword = setNewPassword;
 
